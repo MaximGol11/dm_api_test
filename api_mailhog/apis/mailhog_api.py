@@ -8,5 +8,20 @@ class MailhogApi():
         
     
     def get_api_v2_messages(self):
-        response = requests.get(url=f'{self.host}/api/v2/messages', headers=self.headers)
+        params = {
+            "limit": 50
+        }
+        
+        """Get all emails from Mailhog.
+
+        Returns:
+            _type_: _description_
+        """
+        
+        response = requests.get(
+            url=f'{self.host}/api/v2/messages',
+            headers=self.headers,
+            params=params,
+            verify=False
+            )
         return response
