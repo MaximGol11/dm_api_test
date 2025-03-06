@@ -46,6 +46,7 @@ def test_put_v1_accounts_email():
     assert response.status_code == 200
     token = get_activation_token_by_login(login, response)
     response = account_api.put_v1_account_token(token=token)
+    assert response.status_code == 200
 
     response = login_api.post_v1_login(json_data=login_data)
     assert response.status_code == 200
@@ -56,8 +57,7 @@ def test_put_v1_accounts_email():
         "password": password
     }
 
-    response = account_api.put_v1_account_email(json_data=new_email_data
-                                                )
+    response = account_api.put_v1_account_email(json_data=new_email_data)
     assert response.status_code == 200
 
     response = login_api.post_v1_login(json_data=login_data)
@@ -66,7 +66,9 @@ def test_put_v1_accounts_email():
     response = mailhog_api.get_api_v2_messages()
     assert response.status_code == 200
     new_token = get_activation_token_by_login(login, response)
+
     response = account_api.put_v1_account_token(token=new_token)
+    assert response.status_code == 200
 
     response = login_api.post_v1_login(json_data=login_data)
     assert response.status_code == 200
