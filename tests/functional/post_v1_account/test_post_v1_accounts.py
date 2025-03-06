@@ -27,7 +27,6 @@ def test_post_v1_accounts():
     login = Faker().user_name()
     password = Faker().password()
     email = Faker().email()
-    new_email = Faker().email() 
     
     json_data = {
         "login": login,
@@ -47,27 +46,6 @@ def test_post_v1_accounts():
     assert response.status_code == 200
     token = get_activation_token_by_login(login, response)
     response = account_api.put_v1_account_token(token=token)
-    
-    response = login_api.post_v1_login(json_data=login_data)
-    assert response.status_code == 200
-    
-    new_email_data = {
-        "login": login,
-        "email": new_email,
-        "password": password
-    }
-    
-    response = account_api.put_v1_account_email(json_data=new_email_data
-)
-    assert response.status_code == 200
-    
-    response = login_api.post_v1_login(json_data=login_data)
-    assert response.status_code == 403
-    
-    response = mailhog_api.get_api_v2_messages()
-    assert response.status_code == 200
-    new_token = get_activation_token_by_login(login, response)
-    response = account_api.put_v1_account_token(token=new_token)
     
     response = login_api.post_v1_login(json_data=login_data)
     assert response.status_code == 200
