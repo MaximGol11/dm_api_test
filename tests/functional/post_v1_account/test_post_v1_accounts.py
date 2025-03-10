@@ -1,11 +1,11 @@
-from xml.etree.ElementTree import indent
-
 from faker import Faker
 from api_mailhog.apis.mailhog_api import MailhogApi
 from dm_api_account.apis.account_api import AccountApi
 from dm_api_account.apis.login_api import LoginApi
 from json import loads
 import structlog
+from restclient.configuration import Configuration as MailhogConf
+from restclient.configuration import Configuration as DmApiConf
 
 
 structlog.configure(
@@ -18,8 +18,8 @@ structlog.configure(
     ]
 )
 
-ACCOUNT_API_HOST = "http://5.63.153.31:5051"
-MAILHOD_HOST = "http://5.63.153.31:5025"
+dm_api_conf = DmApiConf(host="http://5.63.153.31:5051", disable_log=False)
+mailhog_conf = MailhogConf(host="http://5.63.153.31:5025")
 
 
 def get_activation_token_by_login(login, response):
@@ -33,9 +33,9 @@ def get_activation_token_by_login(login, response):
 
 
 def test_post_v1_accounts():
-    account_api = AccountApi(ACCOUNT_API_HOST)
-    mailhog_api = MailhogApi(MAILHOD_HOST)
-    login_api = LoginApi(ACCOUNT_API_HOST)
+    account_api = AccountApi(dm_api_conf)
+    mailhog_api = MailhogApi(mailhog_conf)
+    login_api = LoginApi(dm_api_conf)
 
     login = Faker().user_name()
     password = Faker().password()
