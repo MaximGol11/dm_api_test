@@ -1,8 +1,22 @@
+from xml.etree.ElementTree import indent
+
 from faker import Faker
 from api_mailhog.apis.mailhog_api import MailhogApi
 from dm_api_account.apis.account_api import AccountApi
 from dm_api_account.apis.login_api import LoginApi
 from json import loads
+import structlog
+
+
+structlog.configure(
+    processors=[
+        structlog.processors.JSONRenderer(
+            indent=4,
+            ensure_ascii=True,
+            #sort_keys=True
+        )
+    ]
+)
 
 ACCOUNT_API_HOST = "http://5.63.153.31:5051"
 MAILHOD_HOST = "http://5.63.153.31:5025"
