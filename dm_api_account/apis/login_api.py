@@ -1,20 +1,16 @@
-import requests
+from restclient.client import RestClient
 
-class LoginApi():
-    
-    def __init__(self, host, headers=None):
-        self.host = host
-        self.headers = headers
-        
-    
+
+class LoginApi(RestClient):
+
     def post_v1_login(self, json_data):
         """Login in account.
         Returns:
             response
         """
         
-        response = requests.post(
-            url=f'{self.host}/v1/account/login',
+        response = self.post(
+            path='/v1/account/login',
             headers=self.headers,
             json=json_data
             )

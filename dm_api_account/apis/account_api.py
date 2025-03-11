@@ -1,11 +1,7 @@
-import requests
+from restclient.client import RestClient
 
-class AccountApi():
-    
-    def __init__(self, host, headers=None):
-        self.host = host
-        self.headers = headers
-        
+
+class AccountApi(RestClient):
     
     def post_v1_account(self, json_data):
         """Create a new account.
@@ -13,8 +9,8 @@ class AccountApi():
             response
         """
         
-        response = requests.post(
-            url=f'{self.host}/v1/account',
+        response = self.post(
+            path='/v1/account',
             headers=self.headers,
             json=json_data
             )
@@ -27,9 +23,9 @@ class AccountApi():
             response
         """
         
-        response = requests.put(
-            url=f'{self.host}/v1/account/{token}',
-            headers=self.headers
+        response = self.put(
+            path=f'/v1/account/{token}',
+            headers=self.headers,
             )
         return response
     
@@ -40,8 +36,8 @@ class AccountApi():
             response
         """
         
-        response = requests.put(
-            url=f'{self.host}/v1/account/email',
+        response = self.put(
+            path='/v1/account/email',
             headers=self.headers,
             json=json_data
             )
