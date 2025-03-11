@@ -2,8 +2,7 @@ from restclient.client import RestClient
 
 
 class LoginApi(RestClient):
-        
-    
+
     def post_v1_login(self, json_data):
         """Login in account.
         Returns:

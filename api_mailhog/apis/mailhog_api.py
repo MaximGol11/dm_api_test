@@ -2,8 +2,7 @@ from restclient.client import RestClient
 
 
 class MailhogApi(RestClient):
-        
-    
+
     def get_api_v2_messages(self):
         """Get all emails from Mailhog.
 
