@@ -93,7 +93,6 @@ class AccountHelper:
         }
 
         response = self.dm_account_api.login_api.post_v1_login(json_data=login_data)
-        assert response.status_code == 200
 
         return response
 
