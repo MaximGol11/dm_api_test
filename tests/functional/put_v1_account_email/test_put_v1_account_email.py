@@ -32,17 +32,11 @@ def test_put_v1_accounts_email():
 
     account_helper = AccountHelper(dm_account_api=account, mailhog_api=mailhog)
 
-    login_data = {
-        "login": login,
-        "password": password
-    }
-
     account_helper.register_and_activate_user(login=login, password=password, email=email)
     account_helper.user_login(login=login, password=password)
     account_helper.change_user_email(login=login, password=password, new_email=new_email)
 
-    # Оставлю проверку на 403 код, думаю потом мы с этим разберемся более красиво
-    response = account.login_api.post_v1_login(json_data=login_data)
+    response = account_helper.user_login(login=login, password=password)
     assert response.status_code == 403
 
     account_helper.activate_user(login=login)

@@ -32,16 +32,7 @@ def test_post_v1_accounts_login():
     password = Faker().password()
     email = Faker().email()
 
-    login_data = {
-        "login": login,
-        "password": password
-    }
-
-    """
-        Оставил шаг, чтобы была проверка на пользователя без регистрации - нет регистрации - нет возможности авторизоваться
-        Думаю такую проверку можно будет сделать это лучше, но оставлю этот шаг до следующих уроков пока таким. 
-    """
-    response = account.login_api.post_v1_login(json_data=login_data)
+    response = account_helper.user_login(login=login, password=password)
     assert response.status_code == 400
 
     account_helper.register_and_activate_user(login=login, password=password, email=email)
