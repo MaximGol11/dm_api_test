@@ -1,9 +1,9 @@
 
 
-def test_put_v1_accounts_email(account_helper, prepare_user):
-    login = prepare_user.login
-    password = prepare_user.password
-    email = prepare_user.email
+def test_put_v1_accounts_email(account_helper, prepare_user_faker):
+    login = prepare_user_faker.login
+    password = prepare_user_faker.password
+    email = prepare_user_faker.email
     new_email = f"new_{email}"
 
     account_helper.register_and_activate_user(login=login, password=password, email=email)

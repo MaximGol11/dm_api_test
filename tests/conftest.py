@@ -44,6 +44,22 @@ def account_helper(account_api, mailhog_api):
 
 
 @pytest.fixture
+def auth_account_helper(mailhog_api, prepare_user_faker):
+    dm_api_conf = DmApiConf(host="http://5.63.153.31:5051", disable_log=False)
+    account_api = DMApiAccount(dm_api_conf)
+
+    login = prepare_user_faker.login
+    password = prepare_user_faker.password
+    email = prepare_user_faker.email
+
+    account_helper = AccountHelper(dm_account_api=account_api, mailhog_api=mailhog_api)
+    account_helper.register_and_activate_user(login=login, password=password, email=email)
+    account_helper.auth_user(login=login, password=password)
+
+    return account_helper
+
+
+@pytest.fixture
 def prepare_user_faker():
     login = Faker().user_name()
     password = Faker().password()
