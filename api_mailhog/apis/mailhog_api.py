@@ -16,7 +16,6 @@ class MailhogApi(RestClient):
 
         response = self.get(
             path='/api/v2/messages',
-            headers=self.headers,
             params=params,
             verify=False
             )
