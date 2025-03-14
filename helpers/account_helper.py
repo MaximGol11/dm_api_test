@@ -1,8 +1,23 @@
-from http.client import responses
+import time
 from json import loads
-
 from services.serv_api_mailhog import MailHogApi
 from services.serv_dm_api_account import DMApiAccount
+
+
+def retrier(func):
+    def wrapper(*args, **kwargs):
+        token = None
+        count = 0
+        while token is None:
+            print(f"Получаю токен пользователя из сервиса MailHog, попытка номер: {count}")
+            token = func(*args, **kwargs)
+            if token:
+                return token
+            if count == 5:
+                raise AssertionError("Колличество попыток получения токена превышено")
+            time.sleep(1)
+
+    return wrapper
 
 
 class AccountHelper:
@@ -16,8 +31,11 @@ class AccountHelper:
         self.mailhog_api = mailhog_api
 
 
-    @staticmethod
-    def get_activation_token_by_login(login, response):
+    @retrier
+    def get_activation_token_by_login(self, login):
+        response = self.mailhog_api.mailhog_api.get_api_v2_messages()
+        assert response.status_code == 200
+
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
             user_login = user_data['Login']
@@ -42,9 +60,7 @@ class AccountHelper:
         response = self.dm_account_api.account_api.post_v1_account(json_data=json_data)
         assert response.status_code == 201
 
-        response = self.mailhog_api.mailhog_api.get_api_v2_messages()
-        assert response.status_code == 200
-        token = self.get_activation_token_by_login(login, response)
+        token = self.get_activation_token_by_login(login)
 
         response = self.dm_account_api.account_api.put_v1_account_token(token=token)
         assert response.status_code == 200
@@ -71,9 +87,7 @@ class AccountHelper:
 
 
     def activate_user(self, login: str):
-        response = self.mailhog_api.mailhog_api.get_api_v2_messages()
-        assert response.status_code == 200
-        token = self.get_activation_token_by_login(login=login, response=response)
+        token = self.get_activation_token_by_login(login=login)
 
         response = self.dm_account_api.account_api.put_v1_account_token(token=token)
 
