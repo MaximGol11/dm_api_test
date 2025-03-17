@@ -208,6 +208,6 @@ class AccountHelper:
 
 
     def get_user_account(self, **kwargs):
-        response = self.dm_account_api.account_api.get_v1_account()
+        response = self.dm_account_api.account_api.get_v1_account(**kwargs)
 
         return response

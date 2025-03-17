@@ -23,7 +23,8 @@ class LoginApi(RestClient):
         """
 
         response = self.delete(
-            path='/v1/account/login'
+            path='/v1/account/login',
+            **kwargs
         )
         return response
 
@@ -35,6 +36,7 @@ class LoginApi(RestClient):
         """
 
         response = self.delete(
-            path='/v1/account/login/all'
+            path='/v1/account/login/all',
+            **kwargs
         )
         return response

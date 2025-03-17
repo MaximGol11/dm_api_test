@@ -3,7 +3,7 @@ from restclient.client import RestClient
 
 class MailhogApi(RestClient):
 
-    def get_api_v2_messages(self):
+    def get_api_v2_messages(self, limit=50, **kwargs):
         """Get all emails from Mailhog.
 
         Returns:
@@ -11,12 +11,13 @@ class MailhogApi(RestClient):
         """
 
         params = {
-            "limit": 50
+            "limit": limit
         }
 
         response = self.get(
             path='/api/v2/messages',
             params=params,
-            verify=False
+            verify=False,
+            **kwargs
             )
         return response

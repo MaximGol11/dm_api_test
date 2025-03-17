@@ -23,11 +23,12 @@ class AccountApi(RestClient):
 
         response = self.get(
             path='/v1/account',
+            **kwargs
         )
         return response
     
     
-    def put_v1_account_token(self, token):
+    def put_v1_account_token(self, token, **kwargs):
         """Activate account.
         Returns:
             response
@@ -35,11 +36,12 @@ class AccountApi(RestClient):
         
         response = self.put(
             path=f'/v1/account/{token}',
+            **kwargs
             )
         return response
     
     
-    def put_v1_account_email(self, json_data):
+    def put_v1_account_email(self, json_data, **kwargs):
         """Change email.
         Returns:
             response
@@ -47,24 +49,26 @@ class AccountApi(RestClient):
         
         response = self.put(
             path='/v1/account/email',
-            json=json_data
+            json=json_data,
+            **kwargs
             )
         return response
 
 
-    def post_v1_account_password(self, json_data):
+    def post_v1_account_password(self, json_data, **kwargs):
         """Reset password.
          Returns:
              response
          """
         response = self.post(
             path='/v1/account/password',
-            json=json_data
+            json=json_data,
+            **kwargs
         )
         return response
 
 
-    def put_v1_account_password(self, json_data):
+    def put_v1_account_password(self, json_data, **kwargs):
         """Change password.
          Returns:
              response
@@ -72,6 +76,7 @@ class AccountApi(RestClient):
 
         response = self.put(
             path='/v1/account/password',
-            json=json_data
+            json=json_data,
+            **kwargs
         )
         return response
