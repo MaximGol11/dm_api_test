@@ -1,0 +1,19 @@
+
+
+def test_put_v1_account_password(account_helper, prepare_user_faker):
+    login = prepare_user_faker.login
+    password = prepare_user_faker.password
+    email = prepare_user_faker.email
+    new_password = f'{password}_new'
+
+    account_helper.register_and_activate_user(login=login, password=password, email=email)
+    account_helper.auth_user(login=login, password=password)
+    account_helper.change_user_password(login=login, email=email, old_password=password, new_password=new_password)
+
+    response = account_helper.user_login(login=login, password=password)
+    assert response.status_code == 400
+
+    account_helper.auth_user(login=login, password=new_password)
+    response = account_helper.get_user_account()
+    assert response.status_code == 200
+
