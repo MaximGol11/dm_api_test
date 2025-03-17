@@ -47,8 +47,6 @@ class AccountHelper:
                     return user_data['ConfirmationLinkUri'].split('/')[-1]
                 return user_data['ConfirmationLinkUrl'].split('/')[-1]
 
-        return f"Токен для пользователя {login}, не был получен по почте."
-
 
     def register_and_activate_user(
             self,
