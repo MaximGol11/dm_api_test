@@ -39,13 +39,15 @@ class AccountHelper:
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
             user_login = user_data['Login']
-            if user_login == login:
+            if user_login == login and password_token_flag == True:
+                return user_data['ConfirmationLinkUri'].split('/')[-1]
+            elif user_login == login:
+                return user_data['ConfirmationLinkUrl'].split('/')[-1]
                 """
                 Пришлось добавить новый параметр в функцию, так как для сброса пароля приходит не 'ConfirmationLinkUrl', а 'ConfirmationLinkUri'
                 """
-                if password_token_flag:
-                    return user_data['ConfirmationLinkUri'].split('/')[-1]
-                return user_data['ConfirmationLinkUrl'].split('/')[-1]
+
+
 
 
     def register_and_activate_user(
