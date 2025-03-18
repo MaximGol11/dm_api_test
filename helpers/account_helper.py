@@ -43,18 +43,16 @@ class AccountHelper:
         response = self.mailhog_api.mailhog_api.get_api_v2_messages()
         assert response.status_code == 200
 
+        token = None
+
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
-            user_login = user_data['Login']
-            if user_login == login and password_token_flag == True:
-                return user_data['ConfirmationLinkUri'].split('/')[-1]
-            elif user_login == login:
-                return user_data['ConfirmationLinkUrl'].split('/')[-1]
-                """
-                Пришлось добавить новый параметр в функцию, так как для сброса пароля приходит не 'ConfirmationLinkUrl', а 'ConfirmationLinkUri'
-                """
-
-
+            user_login = user_data.get('Login')
+            if user_login == login:
+                key = 'ConfirmationLinkUri' if password_token_flag else 'ConfirmationLinkUrl'
+                token = user_data.get(key, "").split('/')[-1]
+                if token:
+                    return token
 
 
     def register_and_activate_user(
