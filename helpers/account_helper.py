@@ -1,7 +1,13 @@
 import time
 from json import loads
+
+from dm_api_account.models.login_credentials import LoginCredentials
+from dm_api_account.models.registration import Registration
 from services.serv_api_mailhog import MailHogApi
 from services.serv_dm_api_account import DMApiAccount
+from dm_api_account.models.change_email import ChangeEmail
+from dm_api_account.models.reset_password import ResetPassword
+from dm_api_account.models.change_password import ChangePassword
 
 
 def retrier(func):
@@ -15,6 +21,7 @@ def retrier(func):
                 return token
             if count == 5:
                 raise AssertionError("Колличество попыток получения токена превышено")
+            count += 1
             time.sleep(1)
 
     return wrapper
@@ -36,18 +43,16 @@ class AccountHelper:
         response = self.mailhog_api.mailhog_api.get_api_v2_messages()
         assert response.status_code == 200
 
+        token = None
+
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
-            user_login = user_data['Login']
-            if user_login == login and password_token_flag == True:
-                return user_data['ConfirmationLinkUri'].split('/')[-1]
-            elif user_login == login:
-                return user_data['ConfirmationLinkUrl'].split('/')[-1]
-                """
-                Пришлось добавить новый параметр в функцию, так как для сброса пароля приходит не 'ConfirmationLinkUrl', а 'ConfirmationLinkUri'
-                """
-
-
+            user_login = user_data.get('Login')
+            if user_login == login:
+                key = 'ConfirmationLinkUri' if password_token_flag else 'ConfirmationLinkUrl'
+                token = user_data.get(key, "").split('/')[-1]
+                if token:
+                    return token
 
 
     def register_and_activate_user(
@@ -56,19 +61,14 @@ class AccountHelper:
             password: str,
             email: str
     ):
-        json_data = {
-            "login": login,
-            "password": password,
-            "email": email
-        }
+        registration = Registration(login=login, password=password, email=email)
 
-        response = self.dm_account_api.account_api.post_v1_account(json_data=json_data)
+        response = self.dm_account_api.account_api.post_v1_account(registration=registration)
         assert response.status_code == 201
 
         token = self.get_activation_token_by_login(login)
 
         response = self.dm_account_api.account_api.put_v1_account_token(token=token)
-        assert response.status_code == 200
 
         return response
 
@@ -79,13 +79,9 @@ class AccountHelper:
             password: str,
             email: str
     ):
-        json_data = {
-            "login": login,
-            "password": password,
-            "email": email
-        }
+        registration = Registration(login=login, password=password, email=email)
 
-        response = self.dm_account_api.account_api.post_v1_account(json_data=json_data)
+        response = self.dm_account_api.account_api.post_v1_account(registration=registration)
         assert response.status_code == 201
 
         return response
@@ -103,26 +99,25 @@ class AccountHelper:
             self,
             login: str,
             password: str,
-            remember_me: bool = True
+            remember_me: bool = True,
+            validate_response: bool = True
     ):
-        login_data = {
-            "login": login,
-            "password": password,
-            "remember_me": remember_me
-        }
+        login_credentials = LoginCredentials(login=login, password=password, remember_me=remember_me)
 
-        response = self.dm_account_api.login_api.post_v1_login(json_data=login_data)
+        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials, validate_response=validate_response)
 
         return response
 
 
-    def auth_user(self, login, password):
-        login_data = {
-            "login": login,
-            "password": password,
-        }
+    def auth_user(
+            self,
+            login,
+            password,
+            remember_me: bool = True
+    ):
+        login_credentials = LoginCredentials(login=login, password=password, remember_me=remember_me)
 
-        response = self.dm_account_api.login_api.post_v1_login(json_data=login_data)
+        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials, validate_response=False)
         token = {
             "X-Dm-Auth-Token": response.headers["X-Dm-Auth-Token"]
         }
@@ -150,14 +145,9 @@ class AccountHelper:
             password: str,
             new_email: str
     ):
-        json_data = {
-            "login": login,
-            "password": password,
-            "email": new_email
-        }
+        сhange_email = ChangeEmail(login=login, password=password, email=new_email)
 
-        response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data)
-        assert  response.status_code == 200
+        response = self.dm_account_api.account_api.put_v1_account_email(сhange_email=сhange_email)
 
         return response
 
@@ -167,13 +157,9 @@ class AccountHelper:
             login: str,
             email: str
     ):
-        json_data = {
-            "login": login,
-            "email": email
-        }
+        reset_password = ResetPassword(login=login, email=email)
 
-        response = self.dm_account_api.account_api.post_v1_account_password(json_data=json_data)
-        assert response.status_code == 200
+        response = self.dm_account_api.account_api.post_v1_account_password(reset_password=reset_password)
 
         return response
 
@@ -185,29 +171,25 @@ class AccountHelper:
             old_password: str,
             new_password: str
     ):
-        json_data = {
-            "login": login,
-            "email": email
-        }
+        reset_password = ResetPassword(login=login, email=email)
 
-        response = self.dm_account_api.account_api.post_v1_account_password(json_data=json_data)
-        assert response.status_code == 200
+        response = self.dm_account_api.account_api.post_v1_account_password(reset_password=reset_password)
 
         token = self.get_activation_token_by_login(login=login, password_token_flag=True)
 
-        json_data = {
-            "login": login,
-            "token": token,
-            "oldPassword": old_password,
-            "newPassword": new_password
-        }
-        response = self.dm_account_api.account_api.put_v1_account_password(json_data=json_data)
-        assert response.status_code == 200
+        change_password = ChangePassword(
+            login=login,
+            token=token,
+            old_password=old_password,
+            new_password=new_password
+            )
+        
+        response = self.dm_account_api.account_api.put_v1_account_password(change_password=change_password)
 
         return response
 
 
-    def get_user_account(self, **kwargs):
-        response = self.dm_account_api.account_api.get_v1_account(**kwargs)
+    def get_user_account(self, validate_response: bool = True,  **kwargs):
+        response = self.dm_account_api.account_api.get_v1_account(validate_response=validate_response, **kwargs)
 
         return response

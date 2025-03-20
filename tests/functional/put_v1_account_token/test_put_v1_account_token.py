@@ -7,7 +7,7 @@ def test_put_v1_accounts_token(account_helper, prepare_user):
 
     account_helper.register_user_not_activate(login=login, password=password, email=email)
 
-    response = account_helper.user_login(login=login, password=password)
+    response = account_helper.user_login(login=login, password=password, validate_response=False)
     assert response.status_code == 403
 
     account_helper.activate_user(login=login)

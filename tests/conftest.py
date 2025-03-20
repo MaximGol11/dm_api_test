@@ -32,7 +32,7 @@ def account_api():
 
 @pytest.fixture
 def mailhog_api():
-    mailhog_conf = MailhogConf(host="http://5.63.153.31:5025")
+    mailhog_conf = MailhogConf(host="http://5.63.153.31:5025", disable_log=True)
     mailhog = MailHogApi(mailhog_conf)
     return mailhog
 
@@ -45,7 +45,7 @@ def account_helper(account_api, mailhog_api):
 
 @pytest.fixture
 def auth_account_helper(mailhog_api, prepare_user_faker):
-    dm_api_conf = DmApiConf(host="http://5.63.153.31:5051", disable_log=False)
+    dm_api_conf = DmApiConf(host="http://5.63.153.31:5051")
     account_api = DMApiAccount(dm_api_conf)
 
     login = prepare_user_faker.login
