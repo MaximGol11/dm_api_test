@@ -10,10 +10,9 @@ def test_put_v1_account_password(account_helper, prepare_user_faker):
     account_helper.auth_user(login=login, password=password)
     account_helper.change_user_password(login=login, email=email, old_password=password, new_password=new_password)
 
-    response = account_helper.user_login(login=login, password=password)
+    response = account_helper.user_login(login=login, password=password, validate_response=False)
     assert response.status_code == 400
 
     account_helper.auth_user(login=login, password=new_password)
     response = account_helper.get_user_account()
-    assert response.status_code == 200
 

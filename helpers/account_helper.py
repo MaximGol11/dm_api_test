@@ -69,7 +69,6 @@ class AccountHelper:
         token = self.get_activation_token_by_login(login)
 
         response = self.dm_account_api.account_api.put_v1_account_token(token=token)
-        assert response.status_code == 200
 
         return response
 
@@ -100,11 +99,12 @@ class AccountHelper:
             self,
             login: str,
             password: str,
-            remember_me: bool = True
+            remember_me: bool = True,
+            validate_response: bool = True
     ):
         login_credentials = LoginCredentials(login=login, password=password, remember_me=remember_me)
 
-        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials)
+        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials, validate_response=validate_response)
 
         return response
 
@@ -117,7 +117,7 @@ class AccountHelper:
     ):
         login_credentials = LoginCredentials(login=login, password=password, remember_me=remember_me)
 
-        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials)
+        response = self.dm_account_api.login_api.post_v1_login(login_credentials=login_credentials, validate_response=False)
         token = {
             "X-Dm-Auth-Token": response.headers["X-Dm-Auth-Token"]
         }
@@ -148,7 +148,6 @@ class AccountHelper:
         сhange_email = ChangeEmail(login=login, password=password, email=new_email)
 
         response = self.dm_account_api.account_api.put_v1_account_email(сhange_email=сhange_email)
-        assert  response.status_code == 200
 
         return response
 
@@ -161,7 +160,6 @@ class AccountHelper:
         reset_password = ResetPassword(login=login, email=email)
 
         response = self.dm_account_api.account_api.post_v1_account_password(reset_password=reset_password)
-        assert response.status_code == 200
 
         return response
 
@@ -176,7 +174,6 @@ class AccountHelper:
         reset_password = ResetPassword(login=login, email=email)
 
         response = self.dm_account_api.account_api.post_v1_account_password(reset_password=reset_password)
-        assert response.status_code == 200
 
         token = self.get_activation_token_by_login(login=login, password_token_flag=True)
 
@@ -188,12 +185,11 @@ class AccountHelper:
             )
         
         response = self.dm_account_api.account_api.put_v1_account_password(change_password=change_password)
-        assert response.status_code == 200
 
         return response
 
 
-    def get_user_account(self, **kwargs):
-        response = self.dm_account_api.account_api.get_v1_account(**kwargs)
+    def get_user_account(self, validate_response: bool = True,  **kwargs):
+        response = self.dm_account_api.account_api.get_v1_account(validate_response=validate_response, **kwargs)
 
         return response
