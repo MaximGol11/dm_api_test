@@ -79,3 +79,17 @@ def prepare_user():
     User = namedtuple("User", ["login", "password", "email"])
     user = User(login, password, email)
     return user
+
+
+fake = Faker()
+
+@pytest.fixture(params=[
+    {"login": fake.user_name(), "password": fake.password(), "email": fake.email(), "expected_status": 200},  # Валидные данные
+    {"login": "", "password": "ValidPass123!", "email": "valid@example.com", "expected_status": 400},  # Пустой логин
+    {"login": "short", "password": "ValidPass123!", "email": "valid@example.com", "expected_status": 400},  # Короткий логин
+    {"login": "validUser", "password": "", "email": "valid@example.com", "expected_status": 400},  # Пустой пароль
+    {"login": "validUser", "password": "short", "email": "valid@example.com", "expected_status": 400},  # Короткий пароль
+    {"login": "validUser", "password": "ValidPass123!", "email": "invalid-email", "expected_status": 400} # Невалидный email
+])
+def user_parametrize_test_data(request):
+    return request.param
