@@ -1,3 +1,4 @@
+import allure
 from hamcrest import (
     assert_that,
     has_property,
@@ -12,6 +13,7 @@ from hamcrest import (
 class GetV1Account:
 
     @classmethod
+    @allure.step("Проверка ответа")
     def check_response_values(cls, response):
         assert_that(
             response, all_of(
