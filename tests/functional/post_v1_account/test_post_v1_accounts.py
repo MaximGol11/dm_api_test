@@ -1,7 +1,5 @@
-from datetime import datetime
-from hamcrest import assert_that, has_property, has_properties, all_of, starts_with, instance_of, equal_to
-
 from checkers.http_checkers import check_status_code_http
+from checkers.post_v1_account import PostV1Account
 
 
 def test_post_v1_accounts(account_helper, user_parametrize_test_data):
@@ -14,23 +12,7 @@ def test_post_v1_accounts(account_helper, user_parametrize_test_data):
         with check_status_code_http():
             account_helper.register_and_activate_user(login=login, password=password, email=email)
             response = account_helper.user_login(login=login, password=password)
-            assert_that(
-                response, all_of(
-                    has_property("resource", has_property("login", login)),
-                    has_property("resource", has_property("registration", instance_of(datetime))),
-                    has_property("resource", has_properties(
-                        {
-                            "rating": has_properties(
-                                {
-                                    "enabled": equal_to(True),
-                                    "quality": equal_to(0),
-                                    "quantity": equal_to(0)
-                                }
-                            )
-                        }
-                    ))
-                )
-            )
+            PostV1Account.check_response_values(login, response)
     else:
         with check_status_code_http(expected_status_code=expected_status_code, expected_message="Validation failed"):
             account_helper.register_and_activate_user(login=login, password=password, email=email)
