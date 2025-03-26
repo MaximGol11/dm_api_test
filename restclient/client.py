@@ -4,6 +4,7 @@ from requests import session
 import structlog
 import curlify
 from restclient.configuration import Configuration
+from restclient.utilites import allure_attach
 
 
 class RestClient:
@@ -44,6 +45,7 @@ class RestClient:
         return self._send_request(method='DELETE', path=path, **kwargs)
 
 
+    @allure_attach
     def _send_request(self, method, path, **kwargs):
         log = self.log.bind(event_id=str(uuid.uuid4()))
         full_url = self.host + path
