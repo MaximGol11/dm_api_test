@@ -1,9 +1,12 @@
 from collections import namedtuple
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 from faker import Faker
 import structlog
+from requests import options
+from vyper import v
 
 from helpers.account_helper import AccountHelper
 from restclient.configuration import Configuration as MailhogConf
@@ -22,17 +25,40 @@ structlog.configure(
     ]
 )
 
+options =(
+    'service.dm_api_acount',
+    'service.mailhod_api'
+)
+
+@pytest.fixture(scope="session", autouse=True)
+def set_config(request):
+    config = Path(__file__).joinpath("../../").joinpath("config")
+    config_name = request.config.getoption("--env")
+    v.set_config_name(config_name)
+    v.add_config_path(config)
+    v.read_in_config()
+
+    for option in options:
+        v.set(f"{option}", request.config.getoption(f"--{option}"))
+
+
+def pytest_addoption(parser):
+    parser.addoption("--env", default="stg", action="store", help="run stg")
+
+    for option in options:
+        parser.addoption(f"--{option}", action="store", default=None, )
+
 
 @pytest.fixture
 def account_api():
-    dm_api_conf = DmApiConf(host="http://5.63.153.31:5051", disable_log=False)
+    dm_api_conf = DmApiConf(host=v.get("service.dm_api_account"), disable_log=False)
     account = DMApiAccount(dm_api_conf)
     return account
 
 
 @pytest.fixture
 def mailhog_api():
-    mailhog_conf = MailhogConf(host="http://5.63.153.31:5025", disable_log=True)
+    mailhog_conf = MailhogConf(host=v.get("service.mailhog_api"), disable_log=True)
     mailhog = MailHogApi(mailhog_conf)
     return mailhog
 
@@ -45,7 +71,7 @@ def account_helper(account_api, mailhog_api):
 
 @pytest.fixture
 def auth_account_helper(mailhog_api, prepare_user_faker):
-    dm_api_conf = DmApiConf(host="http://5.63.153.31:5051")
+    dm_api_conf = DmApiConf(host=v.get("service.dm_api_account"))
     account_api = DMApiAccount(dm_api_conf)
 
     login = prepare_user_faker.login
