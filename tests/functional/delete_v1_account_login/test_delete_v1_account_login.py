@@ -1,7 +1,9 @@
+from checkers.http_checkers import check_status_code_http
 
 
 def test_delete_v1_account_login(auth_account_helper):
-    response = auth_account_helper.logout_user()
-    assert response.status_code == 204
-    response = auth_account_helper.get_user_account(validate_response=False)
-    assert response.status_code == 401
+    with check_status_code_http():
+        auth_account_helper.logout_user()
+
+    with check_status_code_http(401, "User must be authenticated"):
+        auth_account_helper.get_user_account(validate_response=False)
