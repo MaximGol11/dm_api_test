@@ -7,7 +7,7 @@ from checkers.http_checkers import check_status_code_http
 class TestDeleteV1AccountLoginAll:
 
     @allure.step("Тест логаута пользователя со всех устройств")
-    def test_delete_v1_account_login_all(auth_account_helper):
+    def test_delete_v1_account_login_all(self, auth_account_helper):
         with check_status_code_http():
             auth_account_helper.logout_user_all()
 

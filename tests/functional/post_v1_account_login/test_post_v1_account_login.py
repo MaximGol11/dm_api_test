@@ -7,7 +7,7 @@ from checkers.http_checkers import check_status_code_http
 class TestPostV1Account:
 
     @allure.title("Тест проверки авторизации пользователя")
-    def test_post_v1_accounts_login(account_helper, prepare_user):
+    def test_post_v1_accounts_login(self, account_helper, prepare_user):
         login = prepare_user.login
         password = prepare_user.password
         email = prepare_user.email

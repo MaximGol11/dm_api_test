@@ -7,7 +7,7 @@ from checkers.http_checkers import check_status_code_http
 class TestPutV1AccountToken:
 
     @allure.title("Тест активации нового пользователя")
-    def test_put_v1_accounts_token(account_helper, prepare_user):
+    def test_put_v1_accounts_token(self, account_helper, prepare_user):
         login = prepare_user.login
         password = prepare_user.password
         email = prepare_user.email

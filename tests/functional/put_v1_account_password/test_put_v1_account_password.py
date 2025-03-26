@@ -7,7 +7,7 @@ from checkers.http_checkers import check_status_code_http
 class TestPutV1AccountPassword:
 
     @allure.title("Тест смены пароля пользователя")
-    def test_put_v1_account_password(account_helper, prepare_user_faker):
+    def test_put_v1_account_password(self, account_helper, prepare_user_faker):
         login = prepare_user_faker.login
         password = prepare_user_faker.password
         email = prepare_user_faker.email
