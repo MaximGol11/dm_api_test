@@ -1,3 +1,4 @@
+import os
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
@@ -29,7 +30,9 @@ structlog.configure(
 
 options =(
     'service.dm_api_acount',
-    'service.mailhod_api'
+    'service.mailhod_api',
+    'telegram.bot_token',
+    'telegram.chat_id'
 )
 
 @pytest.fixture(scope="session", autouse=True)
@@ -52,6 +55,11 @@ def set_config(request):
 
     for option in options:
         v.set(f"{option}", request.config.getoption(f"--{option}"))
+
+    os.environ["TELEGRAM_BOT_CHAT_ID"] = v.get('telegram.chat_id')
+    os.environ["TELEGRAM_BOT_ACCESS_TOKEN"] = v.get('telegram.bot_token')
+    request.config.stash['telegram-notifier-addfields']['enviroment'] = config_name
+    request.config.stash['telegram-notifier-addfields']['report'] = "https://maximgol11.github.io/dm_api_test/"
 
 
 def pytest_addoption(parser):
