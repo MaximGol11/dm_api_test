@@ -1,6 +1,8 @@
 import time
 from json import loads
 
+import allure
+
 from dm_api_account.models.login_credentials import LoginCredentials
 from dm_api_account.models.registration import Registration
 from services.serv_api_mailhog import MailHogApi
@@ -39,6 +41,7 @@ class AccountHelper:
 
 
     @retrier
+    @allure.step("Получение активационного токена из письма")
     def get_activation_token_by_login(self, login, password_token_flag: bool = False):
         response = self.mailhog_api.mailhog_api.get_api_v2_messages()
         assert response.status_code == 200
@@ -55,6 +58,7 @@ class AccountHelper:
                     return token
 
 
+    @allure.step("Регистрация и активация нового пользователя")
     def register_and_activate_user(
             self,
             login: str,
@@ -73,6 +77,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Регистрация нового пользователя")
     def register_user_not_activate(
             self,
             login: str,
@@ -87,6 +92,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Активация пользователя")
     def activate_user(self, login: str):
         token = self.get_activation_token_by_login(login=login)
 
@@ -95,6 +101,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Авторизация пользователя")
     def user_login(
             self,
             login: str,
@@ -109,6 +116,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Авторизация пользователя с добавлением токена в хедеры")
     def auth_user(
             self,
             login,
@@ -125,6 +133,7 @@ class AccountHelper:
         self.dm_account_api.login_api.set_headers(token)
 
 
+    @allure.step("Логаут пользователя из аккаунта пользователя и удаление токена из хедеров")
     def logout_user(self):
         response = self.dm_account_api.login_api.delete_v1_account_login()
         self.dm_account_api.account_api.del_token_in_headers()
@@ -132,6 +141,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Логаут пользователя из аккаунта пользователя со всех устройств и удаление токена из хедеров")
     def logout_user_all(self):
         response = self.dm_account_api.login_api.delete_v1_account_login_all()
         self.dm_account_api.account_api.del_token_in_headers()
@@ -139,6 +149,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Замена email пользователя на новый")
     def change_user_email(
             self,
             login: str,
@@ -152,6 +163,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Сброс пароля пользователя")
     def reset_user_password(
             self,
             login: str,
@@ -164,6 +176,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Замена пароля пользователя на новый")
     def change_user_password(
             self,
             login: str,
@@ -189,6 +202,7 @@ class AccountHelper:
         return response
 
 
+    @allure.step("Получение информации о пользователе")
     def get_user_account(self, validate_response: bool = True,  **kwargs):
         response = self.dm_account_api.account_api.get_v1_account(validate_response=validate_response, **kwargs)
 

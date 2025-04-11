@@ -1,3 +1,5 @@
+import allure
+
 from dm_api_account.models.registration import Registration
 from dm_api_account.models.user_details_envelope import UserDetailsEnvelope
 from dm_api_account.models.user_envelope import UserEnvelope
@@ -7,7 +9,8 @@ from dm_api_account.models.reset_password import ResetPassword
 from dm_api_account.models.change_password import ChangePassword
 
 class AccountApi(RestClient):
-    
+
+    @allure.step("Регистрация нового пользователя")
     def post_v1_account(self, registration: Registration):
         """Create a new account.
         Returns:
@@ -20,6 +23,8 @@ class AccountApi(RestClient):
             )
         return response
 
+
+    @allure.step("Получение информации об авторизованном пользователе")
     def get_v1_account(self, validate_response: bool = True, **kwargs):
         """Get user account.
         Returns:
@@ -34,7 +39,8 @@ class AccountApi(RestClient):
             return UserDetailsEnvelope(**response.json())
         return response
     
-    
+
+    @allure.step("Активация аккаунт пользователя полученным токеном из письма")
     def put_v1_account_token(self, token, validate_response: bool = True, **kwargs):
         """Activate account.
         Returns:
@@ -49,7 +55,8 @@ class AccountApi(RestClient):
             return UserEnvelope(**response.json())
         return response
     
-    
+
+    @allure.step("Замена email пользователя на новый")
     def put_v1_account_email(self, сhange_email: ChangeEmail, validate_response: bool = True, **kwargs):
         """Change email.
         Returns:
@@ -66,6 +73,7 @@ class AccountApi(RestClient):
         return response
 
 
+    @allure.step("Сброс пароля пользователя")
     def post_v1_account_password(self, reset_password: ResetPassword, validate_response: bool = True, **kwargs):
         """Reset password.
          Returns:
@@ -81,6 +89,7 @@ class AccountApi(RestClient):
         return response
 
 
+    @allure.step("Замена старого пароля пользователя на новый")
     def put_v1_account_password(self, change_password: ChangePassword, validate_response: bool = True, **kwargs):
         """Change password.
          Returns:

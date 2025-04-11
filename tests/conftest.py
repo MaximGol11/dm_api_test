@@ -2,6 +2,7 @@ from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 
+import allure
 import pytest
 from faker import Faker
 import structlog
@@ -86,6 +87,7 @@ def auth_account_helper(mailhog_api, prepare_user_faker):
 
 
 @pytest.fixture
+@allure.step("Подготовка данных пользователя для регистрации, генерация фейковых тестовых данных")
 def prepare_user_faker():
     login = Faker().user_name()
     password = Faker().password()
@@ -97,6 +99,7 @@ def prepare_user_faker():
 
 
 @pytest.fixture
+@allure.step("Подготовка данных пользователя для регистрации")
 def prepare_user():
     login = f"login_{datetime.now().strftime("%d_%m_%Y_%H_%M_%S")}"
     password = "qweasd"
