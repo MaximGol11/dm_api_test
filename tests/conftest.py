@@ -2,18 +2,23 @@ import os
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-
 import allure
 import pytest
+import pytest_asyncio
 from faker import Faker
 import structlog
-from requests import options
 from swagger_coverage_py.reporter import CoverageReporter
 from vyper import v
 
+from api_mailhog.async_apis.async_mailhog_api import AsyncMailhogApi
+from dm_api_account.async_apis.async_account_api import AsyncAccountApi
 from helpers.account_helper import AccountHelper
+from helpers.async_account_helper import AsyncAccountHelper
+from restclient.async_client.async_client import AsyncRestClient
 from restclient.configuration import Configuration as MailhogConf
 from restclient.configuration import Configuration as DmApiConf
+from services.async_serv_api_mailhog import AsyncServMailHogApi
+from services.async_serv_dm_api_account import AsyncServDMApiAccount
 from services.serv_api_mailhog import MailHogApi
 from services.serv_dm_api_account import DMApiAccount
 
@@ -35,7 +40,7 @@ options =(
     'telegram.chat_id'
 )
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def setup_swagger_coverage():
     reporter = CoverageReporter(api_name="dm-api-account", host="http://5.63.153.31:5051")
     reporter.setup("/swagger/Account/swagger.json")
@@ -67,6 +72,30 @@ def pytest_addoption(parser):
 
     for option in options:
         parser.addoption(f"--{option}", action="store", default=None, )
+
+#async fixture
+@pytest_asyncio.fixture
+async def async_account_api() -> AsyncAccountApi:
+    config = DmApiConf(host=v.get("service.dm_api_account"), disable_log=False)
+    client = AsyncRestClient(config)
+    await client.open()
+    yield AsyncAccountApi(client)
+    await client.close()
+
+@pytest_asyncio.fixture
+async def async_mailhog_api() -> AsyncMailhogApi:
+    config = MailhogConf(host=v.get("service.mailhog_api"))
+    client = AsyncRestClient(config)
+    await client.open()
+    yield AsyncMailhogApi(client)
+    await client.close()
+
+@pytest_asyncio.fixture
+async def async_account_helper(async_account_api, async_mailhog_api):
+    return AsyncAccountHelper(
+        dm_account_api=async_account_api,
+        mailhog_api=async_mailhog_api
+    )
 
 
 @pytest.fixture
@@ -120,7 +149,7 @@ def prepare_user_faker():
 @pytest.fixture
 @allure.step("Подготовка данных пользователя для регистрации")
 def prepare_user():
-    login = f"login_{datetime.now().strftime("%d_%m_%Y_%H_%M_%S")}"
+    login = f"login_{datetime.now().strftime("%d%m%Y%H%M%S")}"
     password = "qweasd"
     email = f"{login}@test.com"
 
@@ -131,7 +160,7 @@ def prepare_user():
 
 fake = Faker()
 
-@pytest.fixture(params=[
+@pytest_asyncio.fixture(params=[
     {"login": fake.user_name(), "password": fake.password(), "email": fake.email(), "expected_status": 200},  # Валидные данные
     {"login": "", "password": "ValidPass123!", "email": "valid@example.com", "expected_status": 400},  # Пустой логин
     {"login": "short", "password": "ValidPass123!", "email": "valid@example.com", "expected_status": 400},  # Короткий логин

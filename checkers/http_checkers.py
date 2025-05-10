@@ -1,6 +1,6 @@
 import allure
 import requests
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from requests.exceptions import HTTPError
 
 
